@@ -1,3 +1,5 @@
-//
-// Created by sunnari on 9-8-24.
-//
+#include <gtest/gtest.h>
+
+TEST(foo, bar) {
+	GTEST_FAIL();
+};

@@ -9,6 +9,6 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in {
       devShells.${system}.default =
-        pkgs.mkShell { nativeBuildInputs = with pkgs; [ conan cmake ninja clang ]; };
+        pkgs.mkShell { nativeBuildInputs = with pkgs; [ conan cmake ninja ]; };
     };
 }

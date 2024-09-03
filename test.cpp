@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
+#include <iostream>
 
-TEST(foo, bar) {
-	GTEST_FAIL();
-};
+TEST(foo, bar) { GTEST_FAIL(); };

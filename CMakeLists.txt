@@ -11,4 +11,4 @@ add_executable(hft main.cpp
 
 find_package(GTest REQUIRED)
 add_executable(test test.cpp)
-target_link_libraries(test PRIVATE gtest::gtest PUBLIC GTest::gtest_main)
+target_link_libraries(test PRIVATE GTest::gtest PUBLIC GTest::gtest_main)

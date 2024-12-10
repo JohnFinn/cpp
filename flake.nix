@@ -10,27 +10,21 @@
   } @ inputs: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
+    nativeBuildInputs = with pkgs; [conan cmake ninja gtest];
   in {
     devShells.${system}.default = pkgs.mkShell {
-      nativeBuildInputs = with pkgs; [conan cmake ninja];
+      inherit nativeBuildInputs;
     };
 
     packages.${system} = {
       default = pkgs.stdenv.mkDerivation {
-        name = "default";
-        src = ./conan_profile;
+        name = "foo";
+        src = ./.;
+        inherit nativeBuildInputs;
 
         buildPhase = ''
-          echo default > $out
-        '';
-        phases = ["buildPhase"];
-      };
-      foo = pkgs.stdenv.mkDerivation {
-        name = "foobar";
-        src = ./conan_profile;
-
-        buildPhase = ''
-          echo foobar > $out
+          cmake -S $src -B $out -G Ninja
+          ninja -C $out
         '';
         phases = ["buildPhase"];
       };

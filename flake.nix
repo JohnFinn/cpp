@@ -3,11 +3,7 @@
 
   inputs = {nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";};
 
-  outputs = {
-    self,
-    nixpkgs,
-    ...
-  } @ inputs: let
+  outputs = {nixpkgs, ...}: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
     nativeBuildInputs = with pkgs; [conan cmake ninja gtest];

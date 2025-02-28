@@ -58,7 +58,6 @@ public:
       _adj[from].push_back(to);
       _adj[to].push_back(from);
     }
-    printGraph(_adj);
   }
 
   using VertexCover = std::vector<int>;
@@ -117,33 +116,7 @@ private:
       auto view = edges | std::views::filter([v](auto e) { return e != v; });
       edges = std::vector(view.begin(), view.end());
     }
-    std::cout << "-------------\n";
-    std::cout << "Removed vertex " << v << std::endl;
-    printGraph(g._adj);
-    std::cout << "-------------\n";
     return g;
-  }
-
-  static void printGraph(const std::map<int, std::vector<int>> &graph) {
-    for (const auto &[vertex, neighbors] : graph) {
-      // Print the vertex label (this represents the node in the graph)
-      std::cout << "Vertex " << vertex << " --> ";
-
-      // Print the neighbors for that vertex (edges)
-      if (neighbors.empty()) {
-        std::cout << "No neighbors";
-      } else {
-        for (size_t i = 0; i < neighbors.size(); ++i) {
-          std::cout << neighbors[i];
-          if (i < neighbors.size() - 1) {
-            std::cout << ", ";
-          }
-        }
-      }
-
-      // Newline after each vertex's neighbors
-      std::cout << std::endl;
-    }
   }
 
   std::map<int, std::vector<int>> _adj;

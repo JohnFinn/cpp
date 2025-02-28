@@ -3,3 +3,4 @@ build
 .direnv
 result
 CMakeUserPresets.json
+compile_commands.json

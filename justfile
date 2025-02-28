@@ -7,6 +7,7 @@ conan_install:
 build: conan_install
     cmake --preset conan-release
     cmake --build {{ buildDir }}
+    ln -f -s {{ buildDir }}/compile_commands.json {{ justfile_directory() }}/compile_commands.json
 
 run: build
     {{ buildDir }}/vertex-cover

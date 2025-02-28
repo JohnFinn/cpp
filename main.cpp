@@ -79,8 +79,8 @@ private:
     if (const auto first_edge = _first_edge()) {
       const auto [from, to] = *first_edge;
       auto cons = [](VertexCover vec, int val) { vec.push_back(val); return std::move(vec); };
-      if (auto res = remove_vertex(from)._vc_branch(k - 1)) { return cons(std::move(res.value()), from); }
-      if (auto res = remove_vertex(  to)._vc_branch(k - 1)) { return cons(std::move(res.value()),   to); }
+      if (auto res = remove_vertex(from)._vc_branch(k - 1)) { return cons(std::move(*res), from); }
+      if (auto res = remove_vertex(  to)._vc_branch(k - 1)) { return cons(std::move(*res),   to); }
       return std::nullopt;
     }
     return VertexCover();

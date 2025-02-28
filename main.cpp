@@ -72,31 +72,25 @@ public:
     }
   }
 
-  std::size_t num_edges() const {
-    const auto sizes = _adj | std::views::transform([](const auto &v) {
-                         return v.second.size();
-                       });
-    return std::accumulate(sizes.begin(), sizes.end(), 0);
-  }
-
 private:
   std::optional<VertexCover> _vc_branch(int k) const {
     if (k == 0) {
       return std::nullopt;
     }
-    if (num_edges() == 0) {
+    if (const auto first_edge = _first_edge()) {
+      const auto [from, to] = _first_edge().value();
+      if (auto res = remove_vertex(from)._vc_branch(k - 1)) {
+        res.value().push_back(from);
+        return res;
+      }
+      if (auto res = remove_vertex(to)._vc_branch(k - 1)) {
+        res.value().push_back(to);
+        return res;
+      }
+      return std::nullopt;
+    } else {
       return VertexCover();
     }
-    const auto [from, to] = _first_edge().value();
-    if (auto res = remove_vertex(from)._vc_branch(k - 1)) {
-      res.value().push_back(from);
-      return res;
-    }
-    if (auto res = remove_vertex(to)._vc_branch(k - 1)) {
-      res.value().push_back(to);
-      return res;
-    }
-    return std::nullopt;
   }
 
   using Edge = std::pair<std::size_t, std::size_t>;

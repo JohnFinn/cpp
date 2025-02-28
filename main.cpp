@@ -74,23 +74,17 @@ public:
 
 private:
   std::optional<VertexCover> _vc_branch(int k) const {
-    if (k == 0) {
-      return std::nullopt;
-    }
+    // clang-format off
+    if (k == 0) { return std::nullopt; }
     if (const auto first_edge = _first_edge()) {
-      const auto [from, to] = _first_edge().value();
-      if (auto res = remove_vertex(from)._vc_branch(k - 1)) {
-        res.value().push_back(from);
-        return res;
-      }
-      if (auto res = remove_vertex(to)._vc_branch(k - 1)) {
-        res.value().push_back(to);
-        return res;
-      }
+      const auto [from, to] = *first_edge;
+      auto cons = [](VertexCover vec, int val) { vec.push_back(val); return std::move(vec); };
+      if (auto res = remove_vertex(from)._vc_branch(k - 1)) { return cons(std::move(res.value()), from); }
+      if (auto res = remove_vertex(  to)._vc_branch(k - 1)) { return cons(std::move(res.value()),   to); }
       return std::nullopt;
-    } else {
-      return VertexCover();
     }
+    return VertexCover();
+    // clang-format on
   }
 
   using Edge = std::pair<std::size_t, std::size_t>;

@@ -25,9 +25,5 @@
         phases = ["buildPhase"];
       };
     };
-
-    # conan install . --output-folder ./build --profile:build=./conan_profile --profile:host=./conan_profile --build=missing
-    # cmake --preset conan-release
-    # cmake --build build/
   };
 }

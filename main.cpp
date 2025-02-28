@@ -16,7 +16,7 @@ std::string to_string(const auto &streamable) {
 
 int parse_int(std::string_view str) {
   int result;
-  auto [ptr, ec] = std::from_chars(str.begin(), str.end(), result);
+  const auto [ptr, ec] = std::from_chars(str.begin(), str.end(), result);
 
   if (ec == std::errc())
     return result;
@@ -63,7 +63,6 @@ public:
   using VertexCover = std::vector<int>;
 
   VertexCover vertex_cover() const {
-    // return *_vc_branch(2);
     std::size_t try_vertex_cover_size = 0;
     while (true) {
       if (auto vc = _vc_branch(try_vertex_cover_size)) {
@@ -74,8 +73,9 @@ public:
   }
 
   std::size_t num_edges() const {
-    auto sizes = _adj | std::views::transform(
-                            [](const auto &v) { return v.second.size(); });
+    const auto sizes = _adj | std::views::transform([](const auto &v) {
+                         return v.second.size();
+                       });
     return std::accumulate(sizes.begin(), sizes.end(), 0);
   }
 

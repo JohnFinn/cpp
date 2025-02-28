@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 
-std::string quoted_string(std::string_view str) {
+std::string to_string(const auto &streamable) {
   std::ostringstream oss;
-  oss << std::quoted(str);
+  oss << streamable;
   return oss.str();
 }
 
@@ -21,7 +21,7 @@ int parse_int(std::string_view str) {
   if (ec == std::errc())
     return result;
   throw std::invalid_argument(std::string("Invalid number: ") +
-                              quoted_string(str));
+                              to_string(std::quoted(str)));
 }
 
 std::pair<int, int> parse_ints(std::string_view line) {

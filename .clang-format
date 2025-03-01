@@ -6,4 +6,4 @@ IndentWidth: 2
 UseTab: Never
 InsertBraces: true
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
-
+ReferenceAlignment: Left

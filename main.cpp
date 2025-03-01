@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-std::string to_string(const auto &streamable) {
+std::string to_string(const auto& streamable) {
   std::ostringstream oss;
   oss << streamable;
   return oss.str();
@@ -37,7 +37,7 @@ std::pair<int, int> parse_description(std::string_view line) {
           parse_int(line.substr(space + 1))};
 }
 
-auto split_first(auto &&range) {
+auto split_first(auto&& range) {
   auto it = range.begin();
   return std::pair{*it, std::ranges::subrange(++it, range.end())};
 }
@@ -90,7 +90,7 @@ private:
 
   using Edge = std::pair<std::size_t, std::size_t>;
   std::optional<Edge> _first_edge() const {
-    for (const auto &[v, edges] : _adj) {
+    for (const auto& [v, edges] : _adj) {
       if (!edges.empty()) {
         return std::pair(v, edges.front());
       }
@@ -101,7 +101,7 @@ private:
   Graph remove_vertex(std::size_t v) const {
     Graph g = *this;
     g._adj.erase(v);
-    for (auto &[_, edges] : g._adj) {
+    for (auto& [_, edges] : g._adj) {
       auto view = edges | std::views::filter([v](auto e) { return e != v; });
       edges = std::vector(view.begin(), view.end());
     }

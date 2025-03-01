@@ -5,7 +5,7 @@
 
 class Graph {
 public:
-  Graph(auto&& edges) {
+  template <std::ranges::range R> Graph(R&& edges) {
     for (const auto [from, to] : edges) {
       _adj[from].push_back(to);
       _adj[to].push_back(from);

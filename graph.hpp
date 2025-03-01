@@ -5,7 +5,9 @@
 
 class Graph {
 public:
-  template <std::ranges::range R> Graph(R&& edges) {
+  template <std::ranges::range R>
+    requires std::is_same_v<std::ranges::range_value_t<R>, std::pair<int, int>>
+  Graph(R&& edges) {
     for (const auto [from, to] : edges) {
       _adj[from].push_back(to);
       _adj[to].push_back(from);

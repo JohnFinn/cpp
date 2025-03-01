@@ -18,8 +18,8 @@ run: build
 gtest: build
     {{ buildDir }}/test
 
-bench: build
-    {{ buildDir }}/bench
+bench *args: build
+    {{ buildDir }}/bench {{ args }}
 
 sample_input:
     #!/usr/bin/bash

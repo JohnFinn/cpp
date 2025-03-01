@@ -7,6 +7,12 @@ TEST(foo, bar) {
   using namespace ::testing;
   EXPECT_THAT(Graph(std::vector<Graph::Edge>{}).vertex_cover(),
               UnorderedElementsAre());
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 1}}).vertex_cover(),
+              UnorderedElementsAre(1));
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 1}, {2, 2}}).vertex_cover(),
+              UnorderedElementsAre(1, 2));
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 2}}).vertex_cover(),
+              UnorderedElementsAre(AnyOf(1, 2)));
   EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {4, 5}, {4, 6}})
                   .vertex_cover(),
               UnorderedElementsAre(2, 4));

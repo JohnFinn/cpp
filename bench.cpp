@@ -4,6 +4,7 @@
 
 static void BM_GraphConstructor(benchmark::State& state) {
   const auto max = state.range(0);
+  std::srand(0xb0063f72 + max);
   std::vector<std::pair<int, int>> vec(max);
   std::generate(vec.begin(), vec.end(), [max]() {
     return std::pair(std::rand() % max, std::rand() % max);
@@ -16,6 +17,7 @@ BENCHMARK(BM_GraphConstructor)->Range(8, 8 << 10);
 
 static void BM_MinVertexCover(benchmark::State& state) {
   const auto max = state.range(0);
+  std::srand(0xb0063f72 + max);
   std::vector<std::pair<int, int>> vec(max);
   std::generate(vec.begin(), vec.end(), [max]() {
     return std::pair(std::rand() % max, std::rand() % max);

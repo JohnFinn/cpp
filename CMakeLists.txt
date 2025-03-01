@@ -5,9 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(vertex-cover main.cpp
-        msg_stream_iterator.h
-        messages.h)
+add_executable(vertex-cover main.cpp)
 
 find_package(GTest REQUIRED)
 add_executable(test test.cpp)

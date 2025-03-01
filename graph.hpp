@@ -45,9 +45,9 @@ private:
   }
 
   std::optional<Edge> _first_edge() const {
-    for (const auto& [v, edges] : _adj) {
-      if (!edges.empty()) {
-        return std::pair(v, edges.front());
+    for (const auto& [from, edges] : _adj) {
+      for (const auto to : edges) {
+        return std::pair(from, to);
       }
     }
     return std::nullopt;

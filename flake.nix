@@ -6,7 +6,7 @@
   outputs = {nixpkgs, ...}: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-    nativeBuildInputs = with pkgs; [conan cmake ninja gtest];
+    nativeBuildInputs = with pkgs; [conan cmake ninja gtest flamegraph];
   in {
     devShells.${system}.default = pkgs.mkShell {
       inherit nativeBuildInputs;

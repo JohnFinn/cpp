@@ -1,6 +1,6 @@
 buildDir := justfile_directory() / "build"
 conanProfile := justfile_directory() / "conan_profile"
-cmakeExtraArgs := ""
+cmakeExtraArgs := "-D CMAKE_CXX_FLAGS='-fno-omit-frame-pointer'"
 
 conan_install:
     conan install . --output-folder {{ buildDir }} --profile:build={{ conanProfile }} --profile:host={{ conanProfile }} --build=missing >&2
@@ -40,6 +40,14 @@ run_with_sample_input:
 
 @solve_and_check arg:
     /home/sunnari/code/algorithm-engineering/verifier.py {{ arg }} <(cat {{ arg }} | just runNoBuild)
+
+perf: build
+    # sudo perf record -F 997 --call-graph fp -o /tmp/perf.data -- {{ buildDir }}/bench --benchmark_filter=BM_MinVertexCover
+    sudo perf stat -- {{ buildDir }}/bench --benchmark_filter=BM_MinVertexCover
+    # sudo chown sunnari:sunnari /tmp/perf.data
+
+flamegraph:
+    flamegraph.pl <(perf script -i /tmp/perf.data | stackcollapse-perf.pl) > /tmp/perf.svg
 
 smoke_test: build
     just solve_and_check <(just sample_input)

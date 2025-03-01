@@ -9,3 +9,5 @@ os=Linux
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
+tools.build:cxxflags=["-fdiagnostics-color=always"]
+tools.build:cflags=["-fdiagnostics-color=always"]

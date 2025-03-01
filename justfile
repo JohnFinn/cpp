@@ -53,7 +53,7 @@ smoke_test: build
     just solve_and_check /home/sunnari/code/algorithm-engineering/instances/biology/optK_02_c_0.5_cost_matrix_component_nr_3046_size_11_cutoff_10.0.graph
     just solve_and_check /home/sunnari/code/algorithm-engineering/instances/biology/optK_02_c_0.33_cost_matrix_component_nr_1676_size_8_cutoff_10.0.graph
 
-perf: build
+hyperfine: build
     hyperfine \
     'just runNoBuild < /home/sunnari/code/algorithm-engineering/instances/biology/optK_01_c_0.5_cost_matrix_component_nr_3128_size_6_cutoff_10.0.graph' \
     'just runNoBuild < /home/sunnari/code/algorithm-engineering/instances/biology/optK_01_c_0.5_cost_matrix_component_nr_3675_size_4_cutoff_10.0.graph' \

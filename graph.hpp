@@ -55,8 +55,7 @@ private:
     Graph g = *this;
     g._adj.erase(v);
     for (auto& [_, edges] : g._adj) {
-      auto view = edges | std::views::filter([v](auto e) { return e != v; });
-      edges = std::vector(view.begin(), view.end());
+      std::erase(edges, v);
     }
     return g;
   }

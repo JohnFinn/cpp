@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 Graph makeGraph(std::initializer_list<Graph::Edge> edges) {
-  return Graph(std::vector<Graph::Edge>(edges));
+  return Graph(edges);
 }
 
 TEST(foo, bar) {

@@ -12,7 +12,7 @@ build: conan_install
 run: build
     {{ buildDir }}/vertex-cover
 
-runNoBuild:
+@runNoBuild:
     {{ buildDir }}/vertex-cover
 
 gtest: build
@@ -34,7 +34,7 @@ run_with_sample_input:
     #!/usr/bin/env bash
     just sample_input | just run 
 
-solve_and_check arg:
+@solve_and_check arg:
     /home/sunnari/code/algorithm-engineering/verifier.py {{ arg }} <(cat {{ arg }} | just runNoBuild)
 
 smoke_test: build

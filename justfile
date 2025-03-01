@@ -15,6 +15,9 @@ run: build
 runNoBuild:
     {{ buildDir }}/vertex-cover
 
+gtest: build
+    {{ buildDir }}/test
+
 sample_input:
     #!/usr/bin/bash
     cat <<EOF

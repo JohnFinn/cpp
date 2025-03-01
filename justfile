@@ -18,6 +18,9 @@ run: build
 gtest: build
     {{ buildDir }}/test
 
+bench: build
+    {{ buildDir }}/bench
+
 sample_input:
     #!/usr/bin/bash
     cat <<EOF

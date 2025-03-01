@@ -18,8 +18,9 @@ int parse_int(std::string_view str) {
   int result;
   const auto [ptr, ec] = std::from_chars(str.begin(), str.end(), result);
 
-  if (ec == std::errc())
+  if (ec == std::errc()) {
     return result;
+  }
   throw std::invalid_argument(std::string("Invalid number: ") +
                               to_string(std::quoted(str)));
 }

@@ -1,0 +1,9 @@
+# .clang-format file
+---
+BasedOnStyle: LLVM
+# ColumnLimit: 120
+IndentWidth: 2
+UseTab: Never
+InsertBraces: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+

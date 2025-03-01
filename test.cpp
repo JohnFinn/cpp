@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 TEST(foo, bar) {
-  Graph g(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {4, 5}, {4, 6}});
-  EXPECT_THAT(g.vertex_cover(), ::testing::UnorderedElementsAre(2, 4));
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {4, 5}, {4, 6}})
+                  .vertex_cover(),
+              ::testing::UnorderedElementsAre(2, 4));
 }

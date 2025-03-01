@@ -1,11 +1,12 @@
 buildDir := justfile_directory() / "build"
 conanProfile := justfile_directory() / "conan_profile"
+cmakeExtraArgs := ""
 
 conan_install:
     conan install . --output-folder {{ buildDir }} --profile:build={{ conanProfile }} --profile:host={{ conanProfile }} --build=missing >&2
 
 build: conan_install
-    cmake --preset conan-release >&2
+    cmake --preset conan-release {{ cmakeExtraArgs }}  >&2
     cmake --build {{ buildDir }} >&2
     ln -f -s {{ buildDir }}/compile_commands.json {{ justfile_directory() }}/compile_commands.json >&2
 

@@ -1,4 +1,6 @@
 #include <map>
+#include <format>
+#include <iostream>
 #include <optional>
 #include <ranges>
 #include <vector>
@@ -20,6 +22,10 @@ public:
 
   VertexCover vertex_cover() const {
     for (std::size_t try_vertex_cover_size : std::views::iota(0)) {
+#ifdef LOG
+      std::cerr << std::format("Trying vertex cover size {}/{}\r",
+                               try_vertex_cover_size, _adj.size());
+#endif
       if (auto vc = _vc_branch(try_vertex_cover_size)) {
         return *vc;
       }

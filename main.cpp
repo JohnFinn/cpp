@@ -44,18 +44,8 @@ auto split_first(auto&& range) {
 
 class Graph {
 public:
-  Graph() {
-    auto input = std::string(std::istreambuf_iterator<char>{std::cin}, {}) |
-                 std::views::split('\n') | std::views::transform([](auto word) {
-                   return std::string_view(word.begin(), word.end());
-                 }) |
-                 std::views::filter([](auto line) {
-                   return line.size() > 0 && !line.starts_with("c");
-                 });
-    auto [first, rest] = split_first(input);
-    const auto [num_verticies, num_edges] = parse_description(first);
-    for (auto line : rest) {
-      const auto [from, to] = parse_ints(line);
+  Graph(auto&& edges) {
+    for (const auto [from, to] : edges) {
       _adj[from].push_back(to);
       _adj[to].push_back(from);
     }
@@ -112,7 +102,17 @@ private:
 };
 
 int main() {
-  for (auto v : Graph().vertex_cover()) {
+  auto input = std::string(std::istreambuf_iterator<char>{std::cin}, {}) |
+               std::views::split('\n') | std::views::transform([](auto word) {
+                 return std::string_view(word.begin(), word.end());
+               }) |
+               std::views::filter([](auto line) {
+                 return line.size() > 0 && !line.starts_with("c");
+               });
+  auto [first, rest] = split_first(input);
+  const auto [num_verticies, num_edges] = parse_description(first);
+  for (auto v :
+       Graph(rest | std::views::transform(parse_ints)).vertex_cover()) {
     std::cout << v << '\n';
   }
   return 0;

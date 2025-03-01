@@ -5,8 +5,11 @@
 
 class Graph {
 public:
+  using Vertex = int;
+  using Edge = std::pair<Vertex, Vertex>;
+
   template <std::ranges::range R>
-    requires std::is_same_v<std::ranges::range_value_t<R>, std::pair<int, int>>
+    requires std::is_same_v<std::ranges::range_value_t<R>, Edge>
   Graph(R&& edges) {
     for (const auto [from, to] : edges) {
       _adj[from].push_back(to);
@@ -14,7 +17,7 @@ public:
     }
   }
 
-  using VertexCover = std::vector<int>;
+  using VertexCover = std::vector<Vertex>;
 
   VertexCover vertex_cover() const {
     std::size_t try_vertex_cover_size = 0;
@@ -41,7 +44,6 @@ private:
     // clang-format on
   }
 
-  using Edge = std::pair<std::size_t, std::size_t>;
   std::optional<Edge> _first_edge() const {
     for (const auto& [v, edges] : _adj) {
       if (!edges.empty()) {
@@ -51,7 +53,7 @@ private:
     return std::nullopt;
   }
 
-  Graph remove_vertex(std::size_t v) const {
+  Graph remove_vertex(Vertex v) const {
     Graph g = *this;
     g._adj.erase(v);
     for (auto& [_, edges] : g._adj) {
@@ -60,5 +62,5 @@ private:
     return g;
   }
 
-  std::map<int, std::vector<int>> _adj;
+  std::map<Vertex, std::vector<Vertex>> _adj;
 };

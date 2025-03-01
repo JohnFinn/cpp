@@ -9,7 +9,7 @@ add_executable(vertex-cover main.cpp)
 
 find_package(GTest REQUIRED)
 add_executable(test test.cpp)
-target_link_libraries(test PRIVATE GTest::gtest PUBLIC GTest::gtest_main)
+target_link_libraries(test PRIVATE GTest::gtest GTest::gmock PUBLIC GTest::gtest_main)
 
 find_package(benchmark REQUIRED)
 add_executable(bench bench.cpp)

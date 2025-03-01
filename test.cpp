@@ -1,4 +1,9 @@
-#include <gtest/gtest.h>
-#include <iostream>
+#include "graph.hpp"
 
-TEST(foo, bar) { GTEST_FAIL(); };
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+TEST(foo, bar) {
+  Graph g(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {4, 5}, {4, 6}});
+  EXPECT_THAT(g.vertex_cover(), ::testing::UnorderedElementsAre(2, 4));
+}

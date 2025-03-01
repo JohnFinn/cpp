@@ -20,12 +20,10 @@ public:
   using VertexCover = std::vector<Vertex>;
 
   VertexCover vertex_cover() const {
-    std::size_t try_vertex_cover_size = 0;
-    while (true) {
+    for (std::size_t try_vertex_cover_size : std::views::iota(0)) {
       if (auto vc = _vc_branch(try_vertex_cover_size)) {
         return *vc;
       }
-      try_vertex_cover_size += 1;
     }
   }
 

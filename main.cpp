@@ -37,6 +37,11 @@ std::pair<int, int> parse_description(std::string_view line) {
           parse_int(line.substr(space + 1))};
 }
 
+auto split_first(auto &&range) {
+  auto it = range.begin();
+  return std::pair{*it, std::ranges::subrange(++it, range.end())};
+}
+
 class Graph {
 public:
   Graph() {
@@ -47,14 +52,9 @@ public:
                  std::views::filter([](auto line) {
                    return line.size() > 0 && !line.starts_with("c");
                  });
-
-    bool is_first = true;
-    for (auto line : input) {
-      if (is_first) {
-        const auto [num_verticies, num_edges] = parse_description(line);
-        is_first = false;
-        continue;
-      }
+    auto [first, rest] = split_first(input);
+    const auto [num_verticies, num_edges] = parse_description(first);
+    for (auto line : rest) {
       const auto [from, to] = parse_ints(line);
       _adj[from].push_back(to);
       _adj[to].push_back(from);

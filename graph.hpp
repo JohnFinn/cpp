@@ -11,9 +11,8 @@ public:
   template <std::ranges::range R>
     requires std::is_same_v<std::ranges::range_value_t<R>, Edge>
   Graph(R&& edges) {
-    for (const auto [from, to] : edges) {
-      _adj[from].push_back(to);
-      _adj[to].push_back(from);
+    for (const auto e : edges) {
+      _adj.push_back(e);
     }
   }
 
@@ -43,22 +42,19 @@ private:
   }
 
   std::optional<Edge> _first_edge() const {
-    for (const auto& [from, edges] : _adj) {
-      for (const auto to : edges) {
-        return std::pair(from, to);
-      }
+    for (const auto& edge : _adj) {
+      return edge;
     }
     return std::nullopt;
   }
 
   Graph remove_vertex(Vertex v) const {
     Graph g = *this;
-    g._adj.erase(v);
-    for (auto& [_, edges] : g._adj) {
-      std::erase(edges, v);
-    }
+    std::erase_if(g._adj, [v](const auto& pair) {
+      return pair.first == v || pair.second == v;
+    });
     return g;
   }
 
-  std::map<Vertex, std::vector<Vertex>> _adj;
+  std::vector<Edge> _adj;
 };

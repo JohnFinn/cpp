@@ -13,6 +13,22 @@ TEST(foo, bar) {
               UnorderedElementsAre(1, 2));
   EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 2}}).vertex_cover(),
               UnorderedElementsAre(AnyOf(1, 2)));
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{{2, 1}, {3, 4}}).vertex_cover(),
+              UnorderedElementsAre(AnyOf(1, 2), AnyOf(3, 4)));
+  EXPECT_THAT(
+      Graph(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {3, 1}}).vertex_cover(),
+      Not(UnorderedElementsAre(1, 2, 3)));
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {3, 4}, {4, 1}})
+                  .vertex_cover(),
+              SizeIs(2));
+  EXPECT_THAT(
+      Graph(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}})
+          .vertex_cover(),
+      SizeIs(3));
+  EXPECT_THAT(Graph(std::vector<Graph::Edge>{
+                        {1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}, {1, 3}})
+                  .vertex_cover(),
+              AllOf(SizeIs(3), Contains(AnyOf(1, 3))));
   EXPECT_THAT(Graph(std::vector<Graph::Edge>{{1, 2}, {2, 3}, {4, 5}, {4, 6}})
                   .vertex_cover(),
               UnorderedElementsAre(2, 4));

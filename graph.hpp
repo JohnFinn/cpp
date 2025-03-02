@@ -1,9 +1,11 @@
-#include <map>
 #include <format>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <ranges>
 #include <vector>
+
+#include "ankerl/svector.h"
 
 class Graph {
 public:
@@ -62,5 +64,5 @@ private:
     return g;
   }
 
-  std::vector<Edge> _adj;
+  ankerl::svector<Edge, 16> _adj;
 };

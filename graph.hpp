@@ -15,6 +15,9 @@ public:
   template <std::ranges::range R>
     requires std::is_same_v<std::ranges::range_value_t<R>, Edge>
   Graph(R&& edges) {
+    if constexpr (requires { std::ranges::size(edges); }) {
+      _adj.reserve(std::ranges::size(edges));
+    }
     for (const auto e : edges) {
       _adj.push_back(e);
     }

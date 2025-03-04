@@ -10,6 +10,7 @@
       flamegraph
       libunwind # to make clang work
       llvmPackages.clang-tools # https://github.com/NixOS/nixpkgs/issues/273875#issuecomment-2372118124
+      llvm
     ];
   in {
     devShells.${system}.default = pkgs.mkShell.override {stdenv = pkgs.clangStdenv;} {

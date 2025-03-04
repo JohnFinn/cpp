@@ -1,6 +1,6 @@
 buildDir := justfile_directory() / "build"
 conanProfile := justfile_directory() / "conan_profile"
-cmakeExtraArgs := "-D CMAKE_CXX_FLAGS='-fno-omit-frame-pointer -fdiagnostics-color=always'"
+cmakeExtraArgs := "-D CMAKE_CXX_FLAGS='-fxray-instrument -fno-omit-frame-pointer -fdiagnostics-color=always'"
 
 conan_install:
     conan install . --output-folder {{ buildDir }} --profile:build={{ conanProfile }} --profile:host={{ conanProfile }} --build=missing >&2
@@ -20,7 +20,10 @@ gtest: build
     {{ buildDir }}/test
 
 bench *args: build
-    {{ buildDir }}/bench {{ args }}
+    XRAY_OPTIONS="patch_premain=true xray_mode=xray-basic verbosity=1" {{ buildDir }}/bench {{ args }}
+
+xrayFlamegraph:
+    llvm-xray stack -instr_map=./build/bench xray-log.*.* --keep-going --stack-format=flame -all-stacks | flamegraph.pl > /tmp/xray-flamegraph.svg
 
 sample_input:
     #!/usr/bin/bash

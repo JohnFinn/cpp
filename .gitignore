@@ -4,3 +4,4 @@ build
 result
 CMakeUserPresets.json
 compile_commands.json
+xray-log.*

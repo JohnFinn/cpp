@@ -1,6 +1,6 @@
 buildDir := justfile_directory() / "build"
 conanProfile := justfile_directory() / "conan_profile"
-cmakeExtraArgs := "-D CMAKE_CXX_FLAGS='-fno-omit-frame-pointer'"
+cmakeExtraArgs := "-D CMAKE_CXX_FLAGS='-fno-omit-frame-pointer -fdiagnostics-color=always'"
 
 conan_install:
     conan install . --output-folder {{ buildDir }} --profile:build={{ conanProfile }} --profile:host={{ conanProfile }} --build=missing >&2

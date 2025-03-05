@@ -37,8 +37,8 @@ private:
     if (const auto first_edge = _first_edge()) {
       const auto [from, to] = *first_edge;
       auto cons = [](VertexCover vec, int val) { vec.push_back(val); return std::move(vec); };
-      if (auto res = remove_vertex(from)._vc_branch(k - 1)) { return cons(std::move(*res), from); }
-      if (auto res = remove_vertex(  to)._vc_branch(k - 1)) { return cons(std::move(*res),   to); }
+      if (auto res = Graph(*this).remove_vertex(from)._vc_branch(k - 1)) { return cons(std::move(*res), from); }
+      if (auto res = Graph(*this).remove_vertex(  to)._vc_branch(k - 1)) { return cons(std::move(*res),   to); }
       return std::nullopt;
     }
     return VertexCover();
@@ -52,12 +52,11 @@ private:
     return std::nullopt;
   }
 
-  Graph remove_vertex(Vertex v) const {
-    Graph g = *this;
-    std::erase_if(g._adj, [v](const auto& pair) {
+  Graph& remove_vertex(Vertex v) {
+    std::erase_if(_adj, [v](const auto& pair) {
       return pair.first == v || pair.second == v;
     });
-    return g;
+    return *this;
   }
 
   ankerl::svector<Edge, 16> _adj;

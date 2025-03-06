@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <format>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <unordered_map>
 #include <vector>
 
 class Graph {
@@ -33,6 +33,51 @@ public:
   }
 
 private:
+  auto _get_unmarked_vertex(std::unordered_map<Vertex, int>& visited) const {
+    return std::ranges::find_if(
+        visited, [](const auto& pair) { return pair.second == 0; });
+  }
+
+public:
+  int count_scc() const {
+    int result = 0;
+    std::unordered_map<Vertex, int> visited;
+    for (const auto& [from, to] : _span) {
+      visited[from] = 0;
+      visited[to] = 0;
+    }
+    for (auto mark_as : std::views::iota(1)) {
+      if (auto vertex = _get_unmarked_vertex(visited);
+          vertex != visited.end()) {
+        _dfs(visited, vertex->first, mark_as);
+        result += 1;
+      } else {
+        break;
+      }
+    }
+    return result;
+  }
+
+private:
+  auto _neighbours_of(Vertex v) const {
+    return _span | std::views::filter([v](const auto& pair) {
+             return pair.first == v || pair.second == v;
+           });
+  }
+
+  void _dfs(std::unordered_map<Vertex, int>& visited, Vertex v,
+            int mark_as) const {
+    visited[v] = mark_as;
+    for (const auto& [from, to] : _neighbours_of(v)) {
+      if (visited[from] != mark_as) {
+        _dfs(visited, from, mark_as);
+      }
+      if (visited[to] != mark_as) {
+        _dfs(visited, to, mark_as);
+      }
+    }
+  }
+
   std::optional<VertexCover> _vc_branch(int k) const {
     // clang-format off
     if (k == 0) { return std::nullopt; }

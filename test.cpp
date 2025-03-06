@@ -44,3 +44,34 @@ TEST(foo, bar) {
                   .vertex_cover(),
               UnorderedElementsAre(1, 10));
 }
+
+TEST(foo, scc) {
+  using namespace ::testing;
+  EXPECT_THAT(makeGraph({}).count_scc(), Eq(0));
+  EXPECT_THAT(makeGraph({{1, 1}}).count_scc(), Eq(1));
+  EXPECT_THAT(makeGraph({{1, 1}, {2, 2}}).count_scc(), Eq(2));
+  EXPECT_THAT(makeGraph({{1, 2}}).count_scc(), Eq(1));
+  EXPECT_THAT(makeGraph({{2, 1}, {3, 4}}).count_scc(), Eq(2));
+  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 1}}).count_scc(), Eq(1));
+  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 1}}).count_scc(), Eq(1));
+  EXPECT_THAT(makeGraph({{1, 2},
+                         {1, 3},
+                         {1, 4},
+                         {1, 5},
+                         {10, 20},
+                         {10, 30},
+                         {10, 40},
+                         {10, 50}})
+                  .count_scc(),
+              Eq(2));
+  EXPECT_THAT(makeGraph({{1, 2},
+                         {1, 3},
+                         {2, 3},
+                         {10, 20},
+                         {10, 30},
+                         {10, 40},
+                         {10, 50},
+                         {100, 200}})
+                  .count_scc(),
+              Eq(3));
+}

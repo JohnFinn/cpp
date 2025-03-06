@@ -1,11 +1,11 @@
+#include <algorithm>
 #include <format>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <vector>
-
-#include "ankerl/svector.h"
 
 class Graph {
 public:
@@ -14,7 +14,9 @@ public:
 
   template <std::ranges::range R>
     requires std::is_same_v<std::ranges::range_value_t<R>, Edge>
-  Graph(R&& edges) : _adj(edges.begin(), edges.end()) {}
+  Graph(R&& edges)
+      : _adj(std::make_shared<EdgesVector>(edges.begin(), edges.end())),
+        _span(_adj->begin(), _adj->end()) {}
 
   using VertexCover = std::vector<Vertex>;
 
@@ -22,7 +24,7 @@ public:
     for (std::size_t try_vertex_cover_size : std::views::iota(0)) {
 #ifdef LOG
       std::cerr << std::format("Trying vertex cover size {}/{}\r",
-                               try_vertex_cover_size, _adj.size());
+                               try_vertex_cover_size, _adj->size());
 #endif
       if (auto vc = _vc_branch(try_vertex_cover_size)) {
         return *vc;
@@ -46,18 +48,21 @@ private:
   }
 
   std::optional<Edge> _first_edge() const {
-    for (const auto& edge : _adj | std::views::reverse) {
+    for (const auto& edge : _span) {
       return edge;
     }
     return std::nullopt;
   }
 
   Graph& remove_vertex(Vertex v) {
-    std::erase_if(_adj, [v](const auto& pair) {
+    auto r = std::ranges::partition(_span, [v](const auto& pair) {
       return pair.first == v || pair.second == v;
     });
+    _span = std::span(r.begin(), r.end());
     return *this;
   }
 
-  ankerl::svector<Edge, 16> _adj;
+  using EdgesVector = std::vector<Edge>;
+  std::shared_ptr<EdgesVector> _adj;
+  std::span<Edge> _span;
 };

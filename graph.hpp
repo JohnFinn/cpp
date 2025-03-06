@@ -46,7 +46,7 @@ private:
   }
 
   std::optional<Edge> _first_edge() const {
-    for (const auto& edge : _adj) {
+    for (const auto& edge : _adj | std::views::reverse) {
       return edge;
     }
     return std::nullopt;

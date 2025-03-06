@@ -39,14 +39,14 @@ static void BM_MinVertexCover(benchmark::State& state) {
 }
 BENCHMARK(BM_MinVertexCover)->Arg(10)->Arg(20)->Arg(30)->Arg(40)->Arg(50);
 
-static void BM_GraphCountSCC(benchmark::State& state) {
+static void BM_GraphSplitIntoSCC(benchmark::State& state) {
   const auto max = state.range(0);
   const auto vec = rand_input(0xb0063f72 + max, max);
   Graph g(vec);
   for (auto _ : state) {
-    g.count_scc();
+    g.split_into_scc();
   }
 }
-BENCHMARK(BM_GraphCountSCC)->Arg(10)->Arg(20)->Arg(30)->Arg(40)->Arg(50);
+BENCHMARK(BM_GraphSplitIntoSCC)->Arg(10)->Arg(20)->Arg(30)->Arg(40)->Arg(50);
 
 BENCHMARK_MAIN();

@@ -3,6 +3,13 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+void PrintTo(const Graph& g, ::std::ostream *os) {
+  auto edges = g.edges();
+  std::set<Graph::Edge> sorted(edges.begin(), edges.end());
+  ::testing::internal::UniversalPrinter<std::set<Graph::Edge>>::Print(sorted,
+                                                                      os);
+}
+
 Graph makeGraph(std::initializer_list<Graph::Edge> edges) {
   return Graph(edges);
 }
@@ -47,13 +54,20 @@ TEST(foo, bar) {
 
 TEST(foo, scc) {
   using namespace ::testing;
-  EXPECT_THAT(makeGraph({}).count_scc(), Eq(0));
-  EXPECT_THAT(makeGraph({{1, 1}}).count_scc(), Eq(1));
-  EXPECT_THAT(makeGraph({{1, 1}, {2, 2}}).count_scc(), Eq(2));
-  EXPECT_THAT(makeGraph({{1, 2}}).count_scc(), Eq(1));
-  EXPECT_THAT(makeGraph({{2, 1}, {3, 4}}).count_scc(), Eq(2));
-  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 1}}).count_scc(), Eq(1));
-  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 1}}).count_scc(), Eq(1));
+  EXPECT_THAT(makeGraph({}).split_into_scc(), SizeIs(0));
+  EXPECT_THAT(makeGraph({{1, 1}}).split_into_scc(),
+              UnorderedElementsAre(Eq(makeGraph({{1, 1}}))));
+  EXPECT_THAT(makeGraph({{1, 1}, {2, 2}}).split_into_scc(),
+              UnorderedElementsAre(makeGraph({{1, 1}}), makeGraph({{2, 2}})));
+  EXPECT_THAT(makeGraph({{1, 2}}).split_into_scc(),
+              UnorderedElementsAre(makeGraph({{1, 2}})));
+  EXPECT_THAT(makeGraph({{2, 1}, {3, 4}}).split_into_scc(),
+              UnorderedElementsAre(makeGraph({{2, 1}}), makeGraph({{3, 4}})));
+  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 1}}).split_into_scc(),
+              UnorderedElementsAre(makeGraph({{1, 2}, {2, 3}, {3, 1}})));
+  EXPECT_THAT(
+      makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 1}}).split_into_scc(),
+      UnorderedElementsAre(makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 1}})));
   EXPECT_THAT(makeGraph({{1, 2},
                          {1, 3},
                          {1, 4},
@@ -62,16 +76,21 @@ TEST(foo, scc) {
                          {10, 30},
                          {10, 40},
                          {10, 50}})
-                  .count_scc(),
-              Eq(2));
-  EXPECT_THAT(makeGraph({{1, 2},
-                         {1, 3},
-                         {2, 3},
-                         {10, 20},
-                         {10, 30},
-                         {10, 40},
-                         {10, 50},
-                         {100, 200}})
-                  .count_scc(),
-              Eq(3));
+                  .split_into_scc(),
+              UnorderedElementsAre(
+                  makeGraph({{1, 2}, {1, 3}, {1, 4}, {1, 5}}),
+                  makeGraph({{10, 20}, {10, 30}, {10, 40}, {10, 50}})));
+  EXPECT_THAT(
+      makeGraph({{1, 2},
+                 {1, 3},
+                 {2, 3},
+                 {10, 20},
+                 {10, 30},
+                 {10, 40},
+                 {10, 50},
+                 {100, 200}})
+          .split_into_scc(),
+      UnorderedElementsAre(makeGraph({{1, 2}, {1, 3}, {2, 3}}),
+                           makeGraph({{10, 20}, {10, 30}, {10, 40}, {10, 50}}),
+                           makeGraph({{100, 200}})));
 }

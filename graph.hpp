@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -32,6 +33,15 @@ public:
     }
   }
 
+  bool operator==(const Graph& other) const {
+    auto to_set = [](const auto& graph) {
+      return std::set(graph._span.begin(), graph._span.end());
+    };
+    return to_set(*this) == to_set(other);
+  }
+
+  auto edges() const { return _span; }
+
 private:
   auto _get_unmarked_vertex(std::unordered_map<Vertex, int>& visited) const {
     return std::ranges::find_if(
@@ -39,18 +49,26 @@ private:
   }
 
 public:
-  int count_scc() const {
-    int result = 0;
+  std::vector<Graph> split_into_scc() const {
+    std::vector<Graph> result;
     std::unordered_map<Vertex, int> visited;
     for (const auto& [from, to] : _span) {
       visited[from] = 0;
       visited[to] = 0;
     }
+    auto the_rest = _span;
     for (auto mark_as : std::views::iota(1)) {
       if (auto vertex = _get_unmarked_vertex(visited);
           vertex != visited.end()) {
         _dfs(visited, vertex->first, mark_as);
-        result += 1;
+        auto r = std::ranges::partition(
+            the_rest, [&visited, mark_as](const auto& pair) {
+              return visited[pair.first] == mark_as ||
+                     visited[pair.second] == mark_as;
+            });
+        result.emplace_back(Graph(*this));
+        result.back()._span = std::span(the_rest.begin(), r.begin());
+        the_rest = std::span(r.begin(), r.end());
       } else {
         break;
       }

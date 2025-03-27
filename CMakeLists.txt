@@ -7,13 +7,18 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(vertex-cover main.cpp)
 
+find_package(structopt)
 find_package(svector CONFIG REQUIRED)
 
-target_link_libraries(vertex-cover PRIVATE svector::svector)
+target_link_libraries(vertex-cover PRIVATE svector::svector
+                                           structopt::structopt)
 
 find_package(GTest REQUIRED)
 add_executable(test test.cpp)
-target_link_libraries(test PRIVATE GTest::gtest GTest::gmock svector::svector PUBLIC GTest::gtest_main)
+target_link_libraries(
+  test
+  PRIVATE GTest::gtest GTest::gmock svector::svector
+  PUBLIC GTest::gtest_main)
 
 find_package(benchmark REQUIRED)
 add_executable(bench bench.cpp)

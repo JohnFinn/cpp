@@ -10,8 +10,8 @@ build: conan_install
     cmake --build {{ buildDir }} >&2
     ln -f -s {{ buildDir }}/compile_commands.json {{ justfile_directory() }}/compile_commands.json >&2
 
-run: build
-    {{ buildDir }}/vertex-cover
+run *args: build
+    {{ buildDir }}/vertex-cover {{ args }}
 
 @runNoBuild:
     {{ buildDir }}/vertex-cover

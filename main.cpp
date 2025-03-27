@@ -1,5 +1,6 @@
 #include "graph.hpp"
 
+#include "structopt/app.hpp"
 #include <charconv>
 #include <iomanip>
 #include <iostream>
@@ -41,7 +42,22 @@ auto split_first(auto&& range) {
   return std::pair{*it, std::ranges::subrange(++it, range.end())};
 }
 
-int main() {
+struct Options {
+  std::optional<std::vector<std::string>> timegraph;
+};
+STRUCTOPT(Options, timegraph);
+
+int main(int argc, char **argv) {
+  const auto args = [argc, argv]() {
+    try {
+      return structopt::app("graph").parse<Options>(argc, argv);
+    } catch (const structopt::exception& e) {
+      std::cerr << e.what() << '\n';
+      std::cerr << e.help() << '\n';
+      std::exit(1);
+    }
+  }();
+
   auto input = std::string(std::istreambuf_iterator<char>{std::cin}, {}) |
                std::views::split('\n') | std::views::transform([](auto word) {
                  return std::string_view(word.begin(), word.end());

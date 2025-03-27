@@ -6,9 +6,15 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <ranges>
 #include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
+#include <thread>
+#include <type_traits>
+#include <unistd.h>
 
 std::string to_string(const auto& streamable) {
   std::ostringstream oss;
@@ -57,6 +63,69 @@ Graph parse_graph(std::string_view str) {
   return Graph(rest | std::views::transform(parse_ints));
 }
 
+auto fork_throw_on_error() {
+  if (int pid = fork(); pid >= 0) {
+    return pid;
+  } else {
+    throw std::runtime_error("fork failed");
+  }
+};
+
+struct pipe_fds {
+private:
+  int _fds[2];
+
+  int read_fd() const { return _fds[0]; }
+  int write_fd() const { return _fds[1]; }
+
+public:
+  pipe_fds() {
+    if (pipe(_fds) != 0) {
+      throw std::runtime_error("pipe failed");
+    }
+  }
+
+  void read(std::span<std::byte> span) {
+    if (::read(read_fd(), span.data(), span.size_bytes()) !=
+        span.size_bytes()) {
+      throw std::runtime_error("read failed");
+    }
+  }
+  void write(std::span<const std::byte> span) {
+    if (::write(write_fd(), span.data(), span.size_bytes()) !=
+        span.size_bytes()) {
+      throw std::runtime_error("write failed");
+    }
+  }
+};
+
+template <typename F>
+  requires std::is_trivially_copyable_v<std::invoke_result_t<F>>
+const auto timeout(std::chrono::seconds duration, F f) {
+  pipe_fds p;
+  using res_t = std::invoke_result_t<F>;
+  if (auto pid = fork_throw_on_error(); pid > 0) {
+    std::array<std::byte, sizeof(res_t)> buffer;
+    auto before = std::chrono::high_resolution_clock::now();
+    // TODO:: implement timeouting
+    p.read(buffer);
+    return std::bit_cast<res_t>(buffer);
+  } else {
+    const auto result = f();
+    const auto arr =
+        std::bit_cast<std::array<std::byte, sizeof(res_t)>>(result);
+    p.write(std::span(arr));
+    std::exit(0);
+  }
+};
+
+const auto measure_time(auto f) {
+  auto before = std::chrono::high_resolution_clock::now();
+  auto result = f();
+  auto after = std::chrono::high_resolution_clock::now();
+  return std::pair(after - before, result);
+};
+
 struct Options {
   std::optional<std::vector<std::string>> timegraph;
 };
@@ -79,14 +148,12 @@ int main(int argc, char **argv) {
           std::ifstream fin(file);
           const auto graph =
               parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
-          const auto measure_time = [](auto f) {
-            auto before = std::chrono::high_resolution_clock::now();
-            auto result = f();
-            auto after = std::chrono::high_resolution_clock::now();
-            return std::pair(after - before, result);
-          };
-          const auto [time, vertex_cover] =
-              measure_time([graph] { return graph.vertex_cover(); });
+
+          const auto time = timeout(std::chrono::seconds(10), [&graph] {
+            return measure_time(
+                       [&graph] { return graph.vertex_cover().size(); })
+                .first;
+          });
           std::cout << graph.edges().size() << ',' << time.count() << '\n';
         });
         return 0;

@@ -2,6 +2,7 @@
 
 #include "structopt/app.hpp"
 #include <charconv>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <ranges>
@@ -42,6 +43,19 @@ auto split_first(auto&& range) {
   return std::pair{*it, std::ranges::subrange(++it, range.end())};
 }
 
+Graph parse_graph(std::string_view str) {
+  auto input = str | std::views::split('\n') |
+               std::views::transform([](auto word) {
+                 return std::string_view(word.begin(), word.end());
+               }) |
+               std::views::filter([](auto line) {
+                 return line.size() > 0 && !line.starts_with("c");
+               });
+  const auto [first, rest] = split_first(input);
+  const auto [num_verticies, num_edges] = parse_description(first);
+  return Graph(rest | std::views::transform(parse_ints));
+}
+
 struct Options {
   std::optional<std::vector<std::string>> timegraph;
 };
@@ -58,18 +72,27 @@ int main(int argc, char **argv) {
     }
   }();
 
-  auto input = std::string(std::istreambuf_iterator<char>{std::cin}, {}) |
-               std::views::split('\n') | std::views::transform([](auto word) {
-                 return std::string_view(word.begin(), word.end());
-               }) |
-               std::views::filter([](auto line) {
-                 return line.size() > 0 && !line.starts_with("c");
-               });
-  auto [first, rest] = split_first(input);
-  const auto [num_verticies, num_edges] = parse_description(first);
-  for (auto v :
-       Graph(rest | std::views::transform(parse_ints)).vertex_cover()) {
-    std::cout << v << '\n';
-  }
-  return 0;
+  return args.timegraph
+      .transform([](const auto& timegraph) {
+        std::ranges::for_each(timegraph, [](const auto& file) {
+          std::ifstream fin(file);
+          const auto graph =
+              parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
+          std::cout << file << ' ';
+          for (auto v : graph.vertex_cover()) {
+            std::cout << v << ' ';
+          }
+          std::cout << '\n';
+        });
+        return 0;
+      })
+      .or_else([] {
+        const auto graph = parse_graph(
+            std::string(std::istreambuf_iterator<char>{std::cin}, {}));
+        for (auto v : graph.vertex_cover()) {
+          std::cout << v << '\n';
+        }
+        return std::optional<int>(0);
+      })
+      .value();
 }

@@ -87,7 +87,7 @@ public:
   SubprocessHandle(SubprocessHandle&&) = delete;
   SubprocessHandle& operator=(SubprocessHandle&&) = delete;
 
-  void kill() { ::kill(_pid, SIGTERM); }
+  void kill() { ::kill(_pid, SIGKILL); }
 
   ~SubprocessHandle() { ::waitpid(_pid, nullptr, 0); }
 };
@@ -138,8 +138,9 @@ const std::optional<std::invoke_result_t<F>>
 timeout(std::chrono::seconds duration, F f) {
   pipe_fds p;
   using res_t = std::invoke_result_t<F>;
+  using buffer_t = std::array<std::byte, sizeof(res_t)>;
   if (auto subprocess = SubprocessHandle::fork(); subprocess.has_value()) {
-    std::array<std::byte, sizeof(res_t)> buffer;
+    buffer_t buffer;
     const auto deadline = std::chrono::high_resolution_clock::now() + duration;
     while (std::chrono::high_resolution_clock::now() < deadline) {
       if (p.poll_read(std::chrono::milliseconds(10))) {
@@ -151,8 +152,7 @@ timeout(std::chrono::seconds duration, F f) {
     return std::nullopt;
   } else {
     const auto result = f();
-    const auto arr =
-        std::bit_cast<std::array<std::byte, sizeof(res_t)>>(result);
+    const auto arr = std::bit_cast<buffer_t>(result);
     p.write(std::span(arr));
     std::exit(0);
   }
@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
           const auto graph =
               parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
 
-          const auto time = timeout(std::chrono::seconds(3), [&graph] {
+          const auto time = timeout(std::chrono::seconds(10), [&graph] {
             return measure_time(
                        [&graph] { return graph.vertex_cover().size(); })
                 .first;

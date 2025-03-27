@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <poll.h>
 #include <ranges>
 #include <signal.h>
 #include <sstream>
@@ -67,12 +68,13 @@ Graph parse_graph(std::string_view str) {
 
 class SubprocessHandle {
   pid_t _pid;
-  explicit SubprocessHandle(pid_t pid) : _pid(pid) {}
 
 public:
+  explicit SubprocessHandle(pid_t pid) : _pid(pid) {}
+
   static std::optional<SubprocessHandle> fork() {
     if (int pid = ::fork(); pid > 0) {
-      return SubprocessHandle(pid);
+      return std::make_optional<SubprocessHandle>(pid);
     } else if (pid == 0) {
       return std::nullopt;
     } else {
@@ -80,6 +82,8 @@ public:
     }
   };
 
+  SubprocessHandle(const SubprocessHandle&) = delete;
+  SubprocessHandle& operator=(const SubprocessHandle&) = delete;
   ~SubprocessHandle() { ::waitpid(_pid, nullptr, 0); }
 };
 

@@ -2,6 +2,7 @@
 
 #include "structopt/app.hpp"
 #include <charconv>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -78,11 +79,15 @@ int main(int argc, char **argv) {
           std::ifstream fin(file);
           const auto graph =
               parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
-          std::cout << file << ' ';
-          for (auto v : graph.vertex_cover()) {
-            std::cout << v << ' ';
-          }
-          std::cout << '\n';
+          const auto measure_time = [](auto f) {
+            auto before = std::chrono::high_resolution_clock::now();
+            auto result = f();
+            auto after = std::chrono::high_resolution_clock::now();
+            return std::pair(after - before, result);
+          };
+          const auto [time, vertex_cover] =
+              measure_time([graph] { return graph.vertex_cover(); });
+          std::cout << graph.edges().size() << ',' << time.count() << '\n';
         });
         return 0;
       })

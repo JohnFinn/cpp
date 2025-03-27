@@ -8,10 +8,12 @@
 #include <iostream>
 #include <memory>
 #include <ranges>
+#include <signal.h>
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <sys/wait.h>
 #include <thread>
 #include <type_traits>
 #include <unistd.h>
@@ -63,12 +65,22 @@ Graph parse_graph(std::string_view str) {
   return Graph(rest | std::views::transform(parse_ints));
 }
 
-auto fork_throw_on_error() {
-  if (int pid = fork(); pid >= 0) {
-    return pid;
-  } else {
-    throw std::runtime_error("fork failed");
-  }
+class SubprocessHandle {
+  pid_t _pid;
+  explicit SubprocessHandle(pid_t pid) : _pid(pid) {}
+
+public:
+  static std::optional<SubprocessHandle> fork() {
+    if (int pid = ::fork(); pid > 0) {
+      return SubprocessHandle(pid);
+    } else if (pid == 0) {
+      return std::nullopt;
+    } else {
+      throw std::runtime_error("fork failed");
+    }
+  };
+
+  ~SubprocessHandle() { ::waitpid(_pid, nullptr, 0); }
 };
 
 struct pipe_fds {
@@ -104,7 +116,7 @@ template <typename F>
 const auto timeout(std::chrono::seconds duration, F f) {
   pipe_fds p;
   using res_t = std::invoke_result_t<F>;
-  if (auto pid = fork_throw_on_error(); pid > 0) {
+  if (auto subprocess = SubprocessHandle::fork(); subprocess.has_value()) {
     std::array<std::byte, sizeof(res_t)> buffer;
     auto before = std::chrono::high_resolution_clock::now();
     // TODO:: implement timeouting

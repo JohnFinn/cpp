@@ -3,8 +3,6 @@ project(vertex-cover)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 20)
-
 add_executable(vertex-cover main.cpp)
 
 find_package(structopt)

@@ -68,6 +68,11 @@ private:
   int write_fd() const { return _fds[1]; }
 
 public:
+  pipe_fds(const pipe_fds&) = delete;
+  pipe_fds& operator=(const pipe_fds&) = delete;
+  pipe_fds(pipe_fds&&) = delete;
+  pipe_fds& operator=(pipe_fds&&) = delete;
+
   pipe_fds() {
     if (pipe(_fds) != 0) {
       throw std::runtime_error("pipe failed");

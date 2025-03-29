@@ -103,3 +103,14 @@ TEST(util, pipe) {
   ASSERT_TRUE(p.poll_read(std::chrono::milliseconds(0)));
   EXPECT_EQ(p.deserialize<std::optional<float>>(), std::optional<float>(3.14));
 }
+
+TEST(util, timeout) {
+  EXPECT_EQ(timeout(std::chrono::seconds(1), [] { return 3.14; }),
+            std::optional(3.14));
+  EXPECT_EQ(timeout(std::chrono::seconds(1),
+                    [] {
+                      std::this_thread::sleep_for(std::chrono::seconds(2));
+                      return 3.14;
+                    }),
+            std::nullopt);
+}

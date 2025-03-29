@@ -1,4 +1,5 @@
 #include "graph.hpp"
+#include "util.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -93,4 +94,12 @@ TEST(foo, scc) {
       UnorderedElementsAre(makeGraph({{1, 2}, {1, 3}, {2, 3}}),
                            makeGraph({{10, 20}, {10, 30}, {10, 40}, {10, 50}}),
                            makeGraph({{100, 200}})));
+}
+
+TEST(util, pipe) {
+  using namespace ::testing;
+  pipe_fds p;
+  p.serialize(std::optional<float>(3.14));
+  ASSERT_TRUE(p.poll_read(std::chrono::milliseconds(0)));
+  EXPECT_EQ(p.deserialize<std::optional<float>>(), std::optional<float>(3.14));
 }

@@ -103,6 +103,19 @@ public:
       throw std::runtime_error("poll failed");
     }
   }
+
+  template <typename T> void serialize(const T& value) {
+    using buffer_t = std::array<std::byte, sizeof(T)>;
+    const auto arr = std::bit_cast<buffer_t>(value);
+    write(std::span(arr));
+  }
+
+  template <typename T> T deserialize() {
+    using buffer_t = std::array<std::byte, sizeof(T)>;
+    buffer_t buffer;
+    read(buffer);
+    return std::bit_cast<T>(buffer);
+  }
 };
 
 template <typename F>
@@ -111,20 +124,14 @@ const std::optional<std::invoke_result_t<F>>
 timeout(std::chrono::seconds duration, F f) {
   pipe_fds p;
   using res_t = std::invoke_result_t<F>;
-  using buffer_t = std::array<std::byte, sizeof(res_t)>;
   if (auto subprocess = SubprocessHandle::fork(); subprocess.has_value()) {
-    buffer_t buffer;
     if (p.poll_read(duration)) {
-      p.read(buffer);
-      return std::bit_cast<res_t>(buffer);
+      return p.deserialize<res_t>();
     }
-    std::cout << "killing\n";
     subprocess->kill();
     return std::nullopt;
   } else {
-    const auto result = f();
-    const auto arr = std::bit_cast<buffer_t>(result);
-    p.write(std::span(arr));
+    p.serialize(f());
     std::exit(0);
   }
 };

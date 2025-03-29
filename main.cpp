@@ -52,13 +52,15 @@ int main(int argc, char **argv) {
           const auto graph =
               parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
 
-          const auto time = timeout(std::chrono::seconds(10), [&graph] {
+          const auto result = timeout(std::chrono::seconds(10), [&graph] {
             return measure_time(
-                       [&graph] { return graph.vertex_cover().size(); })
-                .first;
+                [&graph] { return graph.vertex_cover().size(); });
           });
+
           std::cout << graph.edges().size() << ','
-                    << time.value_or(std::chrono::nanoseconds(-1)).count()
+                    << result.transform([](auto r) { return r.time; })
+                           .value_or(std::chrono::nanoseconds(-1))
+                           .count()
                     << std::endl;
         });
         return 0;

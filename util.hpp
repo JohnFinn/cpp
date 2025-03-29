@@ -136,9 +136,14 @@ timeout(std::chrono::seconds duration, F f) {
   }
 };
 
-const auto measure_time(auto f) {
+template <class T> struct measured_t {
+  std::chrono::nanoseconds time;
+  T result;
+};
+
+auto measure_time(auto f) {
   auto before = std::chrono::high_resolution_clock::now();
   auto result = f();
   auto after = std::chrono::high_resolution_clock::now();
-  return std::pair(after - before, result);
+  return measured_t(after - before, result);
 };

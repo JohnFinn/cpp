@@ -1,6 +1,8 @@
+#include "BS_thread_pool.hpp"
 #include "graph.hpp"
 #include "util.hpp"
 #include <fstream>
+#include <syncstream>
 
 #include "structopt/app.hpp"
 
@@ -47,22 +49,33 @@ int main(int argc, char **argv) {
 
   return args.timegraph
       .transform([](const auto& timegraph) {
-        std::ranges::for_each(timegraph, [](const auto& file) {
+        BS::thread_pool pool(4);
+        std::vector<
+            std::pair<size_t, std::future<std::optional<measured_t<size_t>>>>>
+            futures;
+        std::ranges::for_each(timegraph, [&pool, &futures](const auto& file) {
           std::ifstream fin(file);
           const auto graph =
               parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
 
-          const auto result = timeout(std::chrono::seconds(10), [&graph] {
-            return measure_time(
-                [&graph] { return graph.vertex_cover().size(); });
-          });
-
-          std::cout << graph.edges().size() << ','
-                    << result.transform([](auto r) { return r.time; })
-                           .value_or(std::chrono::nanoseconds(-1))
-                           .count()
-                    << std::endl;
+          futures.emplace_back(graph.edges().size(), pool.submit_task([graph] {
+            return timeout(std::chrono::seconds(10), [graph] {
+              return measure_time(
+                  [graph] { return graph.vertex_cover().size(); });
+            });
+          }));
         });
+
+        for (auto& [size, future] : futures) {
+          std::osyncstream{std::cout}
+              << size << ','
+              << future.get()
+                     .transform([](auto r) { return r.time; })
+                     .value_or(std::chrono::nanoseconds(-1))
+                     .count()
+              << std::endl;
+        }
+
         return 0;
       })
       .or_else([] {

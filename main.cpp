@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
   return args.timegraph
       .transform([](const auto& timegraph) {
         BS::thread_pool pool(8);
-        auto to_vector = [](auto&& range) {
+        auto to_vector = [](std::ranges::sized_range auto&& range) {
           return std::vector(range.begin(), range.end());
         };
         auto futures = to_vector(

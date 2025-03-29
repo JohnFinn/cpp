@@ -50,21 +50,22 @@ int main(int argc, char **argv) {
   return args.timegraph
       .transform([](const auto& timegraph) {
         BS::thread_pool pool(4);
-        std::vector<
-            std::pair<size_t, std::future<std::optional<measured_t<size_t>>>>>
-            futures;
-        std::ranges::for_each(timegraph, [&pool, &futures](const auto& file) {
-          std::ifstream fin(file);
-          const auto graph =
-              parse_graph(std::string(std::istreambuf_iterator<char>{fin}, {}));
+        auto to_vector = [](auto&& range) {
+          return std::vector(range.begin(), range.end());
+        };
+        auto futures = to_vector(
+            timegraph | std::views::transform([&pool](const auto& file) {
+              std::ifstream fin(file);
+              const auto graph = parse_graph(
+                  std::string(std::istreambuf_iterator<char>{fin}, {}));
 
-          futures.emplace_back(graph.edges().size(), pool.submit_task([graph] {
-            return timeout(std::chrono::seconds(10), [graph] {
-              return measure_time(
-                  [graph] { return graph.vertex_cover().size(); });
-            });
-          }));
-        });
+              return std::pair(graph.edges().size(), pool.submit_task([graph] {
+                return timeout(std::chrono::seconds(10), [graph] {
+                  return measure_time(
+                      [graph] { return graph.vertex_cover().size(); });
+                });
+              }));
+            }));
 
         for (auto& [size, future] : futures) {
           std::osyncstream{std::cout}

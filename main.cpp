@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
               }));
             }));
 
+        { std::osyncstream{std::cout} << "num_edges,time_ns\n"; }
         for (auto& [size, future] : futures) {
           std::osyncstream{std::cout}
               << size << ','

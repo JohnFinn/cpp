@@ -141,13 +141,11 @@ timeout(std::chrono::seconds duration, F f) {
   using buffer_t = std::array<std::byte, sizeof(res_t)>;
   if (auto subprocess = SubprocessHandle::fork(); subprocess.has_value()) {
     buffer_t buffer;
-    const auto deadline = std::chrono::high_resolution_clock::now() + duration;
-    while (std::chrono::high_resolution_clock::now() < deadline) {
-      if (p.poll_read(std::chrono::milliseconds(10))) {
-        p.read(buffer);
-        return std::bit_cast<res_t>(buffer);
-      }
+    if (p.poll_read(duration)) {
+      p.read(buffer);
+      return std::bit_cast<res_t>(buffer);
     }
+    std::cout << "killing\n";
     subprocess->kill();
     return std::nullopt;
   } else {

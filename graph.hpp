@@ -21,14 +21,17 @@ public:
 
   using VertexCover = std::vector<Vertex>;
 
-  VertexCover vertex_cover() const {
+  using counter_t = long;
+
+  std::pair<counter_t, VertexCover> vertex_cover() const {
+    counter_t count = 0;
     for (std::size_t try_vertex_cover_size : std::views::iota(0)) {
 #ifdef LOG
       std::cerr << std::format("Trying vertex cover size {}/{}\r",
                                try_vertex_cover_size, _adj->size());
 #endif
-      if (auto vc = _vc_branch(try_vertex_cover_size)) {
-        return *vc;
+      if (auto vc = _vc_branch(try_vertex_cover_size, count)) {
+        return {count, *vc};
       }
     }
   }
@@ -96,14 +99,15 @@ private:
     }
   }
 
-  std::optional<VertexCover> _vc_branch(int k) const {
+  std::optional<VertexCover> _vc_branch(int k, counter_t& count) const {
+    ++count;
     // clang-format off
     if (k == 0) { return std::nullopt; }
     if (const auto first_edge = _first_edge()) {
       const auto [from, to] = *first_edge;
       auto cons = [](VertexCover vec, int val) { vec.push_back(val); return std::move(vec); };
-      if (auto res = Graph(*this).remove_vertex(from)._vc_branch(k - 1)) { return cons(std::move(*res), from); }
-      if (auto res = Graph(*this).remove_vertex(  to)._vc_branch(k - 1)) { return cons(std::move(*res),   to); }
+      if (auto res = Graph(*this).remove_vertex(from)._vc_branch(k - 1, count)) { return cons(std::move(*res), from); }
+      if (auto res = Graph(*this).remove_vertex(  to)._vc_branch(k - 1, count)) { return cons(std::move(*res),   to); }
       return std::nullopt;
     }
     return VertexCover();

@@ -17,29 +17,31 @@ Graph makeGraph(std::initializer_list<Graph::Edge> edges) {
 
 TEST(foo, bar) {
   using namespace ::testing;
-  EXPECT_THAT(makeGraph({}).vertex_cover(), UnorderedElementsAre());
-  EXPECT_THAT(makeGraph({{1, 1}}).vertex_cover(), UnorderedElementsAre(1));
-  EXPECT_THAT(makeGraph({{1, 1}, {2, 2}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({}).vertex_cover().second, UnorderedElementsAre());
+  EXPECT_THAT(makeGraph({{1, 1}}).vertex_cover().second,
+              UnorderedElementsAre(1));
+  EXPECT_THAT(makeGraph({{1, 1}, {2, 2}}).vertex_cover().second,
               UnorderedElementsAre(1, 2));
-  EXPECT_THAT(makeGraph({{1, 2}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{1, 2}}).vertex_cover().second,
               UnorderedElementsAre(AnyOf(1, 2)));
-  EXPECT_THAT(makeGraph({{2, 1}, {3, 4}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{2, 1}, {3, 4}}).vertex_cover().second,
               UnorderedElementsAre(AnyOf(1, 2), AnyOf(3, 4)));
-  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 1}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 1}}).vertex_cover().second,
               Not(UnorderedElementsAre(1, 2, 3)));
-  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 1}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 1}}).vertex_cover().second,
               SizeIs(2));
   EXPECT_THAT(
-      makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}}).vertex_cover(),
+      makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}}).vertex_cover().second,
       SizeIs(3));
   EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}, {1, 3}})
-                  .vertex_cover(),
+                  .vertex_cover()
+                  .second,
               AllOf(SizeIs(3), Contains(AnyOf(1, 3))));
-  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {4, 5}, {4, 6}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{1, 2}, {2, 3}, {4, 5}, {4, 6}}).vertex_cover().second,
               UnorderedElementsAre(2, 4));
-  EXPECT_THAT(makeGraph({{1, 2}, {1, 3}, {1, 4}, {1, 5}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{1, 2}, {1, 3}, {1, 4}, {1, 5}}).vertex_cover().second,
               UnorderedElementsAre(1));
-  EXPECT_THAT(makeGraph({{2, 1}, {1, 3}, {4, 1}, {1, 5}}).vertex_cover(),
+  EXPECT_THAT(makeGraph({{2, 1}, {1, 3}, {4, 1}, {1, 5}}).vertex_cover().second,
               UnorderedElementsAre(1));
   EXPECT_THAT(makeGraph({{1, 2},
                          {1, 3},
@@ -49,7 +51,8 @@ TEST(foo, bar) {
                          {10, 30},
                          {10, 40},
                          {10, 50}})
-                  .vertex_cover(),
+                  .vertex_cover()
+                  .second,
               UnorderedElementsAre(1, 10));
 }
 

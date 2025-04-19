@@ -4,6 +4,7 @@
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
     nativeBuildInputs = with pkgs; [
+      (python3.withPackages (ps: [ps.pandas ps.matplotlib]))
       conan
       cmake
       ninja

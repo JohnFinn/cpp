@@ -103,7 +103,7 @@ private:
     ++count;
     // clang-format off
     if (k == 0) { return std::nullopt; }
-    if (const auto first_edge = _first_edge()) {
+    if (const auto first_edge = _find_pivot_edge()) {
       const auto [from, to] = *first_edge;
       auto cons = [](VertexCover vec, int val) { vec.push_back(val); return std::move(vec); };
       if (auto res = Graph(*this).remove_vertex(from)._vc_branch(k - 1, count)) { return cons(std::move(*res), from); }
@@ -114,11 +114,27 @@ private:
     // clang-format on
   }
 
+  std::optional<Edge>
+  get_edge_bordering_vertex_of_degree_at_least_three() const {
+    std::unordered_map<Vertex, std::size_t> degree;
+    for (const auto& [from, to] : _span) {
+      if (++degree[from] == 3 || ++degree[from] == 3) {
+        return Edge{from, to};
+      }
+    }
+    return std::nullopt;
+  }
+
   std::optional<Edge> _first_edge() const {
     for (const auto& edge : _span) {
       return edge;
     }
     return std::nullopt;
+  }
+
+  std::optional<Edge> _find_pivot_edge() const {
+    return get_edge_bordering_vertex_of_degree_at_least_three().or_else(
+        [&]() { return _first_edge(); });
   }
 
   Graph& remove_vertex(Vertex v) {

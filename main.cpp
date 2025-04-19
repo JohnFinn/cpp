@@ -33,8 +33,9 @@ Graph parse_graph(std::string_view str) {
 
 struct Options {
   std::optional<std::vector<std::string>> timegraph;
+  std::optional<int> timeout_seconds = 60;
 };
-STRUCTOPT(Options, timegraph);
+STRUCTOPT(Options, timegraph, timeout_seconds);
 
 int main(int argc, char **argv) {
   const auto args = [argc, argv]() {
@@ -48,23 +49,26 @@ int main(int argc, char **argv) {
   }();
 
   return args.timegraph
-      .transform([](const auto& timegraph) {
+      .transform([&args](const auto& timegraph) {
         BS::thread_pool pool(8);
         auto to_vector = [](std::ranges::sized_range auto&& range) {
           return std::vector(range.begin(), range.end());
         };
         auto futures = to_vector(
-            timegraph | std::views::transform([&pool](const auto& file) {
+            timegraph | std::views::transform([&pool, &args](const auto& file) {
               std::ifstream fin(file);
               const auto graph = parse_graph(
                   std::string(std::istreambuf_iterator<char>{fin}, {}));
 
-              return std::pair(graph.edges().size(), pool.submit_task([graph] {
-                return timeout(std::chrono::seconds(60), [graph] {
-                  return measure_time(
-                      [graph] { return graph.vertex_cover().first; });
-                });
-              }));
+              return std::pair(
+                  graph.edges().size(), pool.submit_task([graph, &args] {
+                    return timeout(
+                        std::chrono::seconds(args.timeout_seconds.value()),
+                        [graph] {
+                          return measure_time(
+                              [graph] { return graph.vertex_cover().first; });
+                        });
+                  }));
             }));
 
         { std::osyncstream{std::cout} << "num_edges,time_ns,num_rec\n"; }

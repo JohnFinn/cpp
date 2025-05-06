@@ -17,7 +17,8 @@ public:
     requires std::is_same_v<std::ranges::range_value_t<R>, Edge>
   Graph(R&& edges)
       : _adj(std::make_shared<EdgesVector>(edges.begin(), edges.end())),
-        _span(_adj->begin(), _adj->end()) {}
+        _span(_adj->begin(), _adj->end()),
+        _degree(std::make_shared<VectorMap>()) {}
 
   using VertexCover = std::vector<Vertex>;
 
@@ -114,12 +115,25 @@ private:
     // clang-format on
   }
 
+  class VectorMap : private std::vector<int> {
+    using base_t = std::vector<int>;
+
+  public:
+    int& operator[](std::size_t idx) {
+      if (idx + 1 > size()) {
+        resize(idx + 1);
+      }
+      return base_t::operator[](idx);
+    }
+
+    using base_t::clear;
+  };
+
   std::optional<Edge>
   get_edge_bordering_vertex_of_degree_at_least_three() const {
-    thread_local std::unordered_map<Vertex, std::size_t> degree;
-    degree.clear();
+    _degree->clear();
     for (const auto& [from, to] : _span) {
-      if (++degree[from] == 3 || ++degree[from] == 3) {
+      if (++(*_degree)[from] == 3 || ++(*_degree)[from] == 3) {
         return Edge{from, to};
       }
     }
@@ -149,4 +163,5 @@ private:
   using EdgesVector = std::vector<Edge>;
   std::shared_ptr<EdgesVector> _adj;
   std::span<Edge> _span;
+  std::shared_ptr<VectorMap> _degree;
 };

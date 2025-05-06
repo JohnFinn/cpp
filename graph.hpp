@@ -116,7 +116,8 @@ private:
 
   std::optional<Edge>
   get_edge_bordering_vertex_of_degree_at_least_three() const {
-    std::unordered_map<Vertex, std::size_t> degree;
+    thread_local std::unordered_map<Vertex, std::size_t> degree;
+    degree.clear();
     for (const auto& [from, to] : _span) {
       if (++degree[from] == 3 || ++degree[from] == 3) {
         return Edge{from, to};
